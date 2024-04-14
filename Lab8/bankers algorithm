@@ -1,0 +1,138 @@
+#include<stdio.h>
+#include<stdlib.h>
+void issafe(int p,int r,int available[],int max[][r],int allocated[][r])//detection
+{
+        int need[p][r];//to keep the number of resources still needed by the process
+        int finish[p];//to keep the track of number of processes finished
+        int safesequence[p];//to store the safe sequence if present
+        int availableatthemoment[r];//to keep the number of resources available at the moment
+        int i,j;
+        for(i=0;i<p;i++)
+        {
+                for(j=0;j<r;j++)
+                {
+                        need[i][j]=max[i][j]-allocated[i][j];
+                }
+        }
+        for(i=0;i<p;i++)
+                finish[i]=0;
+        for(i=0;i<r;i++)
+                availableatthemoment[i]=available[i];
+        int count=0;
+        int canprocess=0;
+        int found=0;
+        while(count<p)
+        {
+                found=0;
+                for(i=0;i<p;i++)
+                {
+                        if(finish[i]==0)
+                        {
+                           canprocess=1;
+                        for(j=0;j<r;j++)
+                                if(need[i][j]>availableatthemoment[j])
+                                {
+                                        canprocess=0;//if the need of the process is greater than current availibility of resources canprocess becomes zero and the value of its need is not updated
+                                        break;
+                                }
+                        }
+                        if(canprocess)
+                {
+                        for(j=0;j<r;j++)
+                                availableatthemoment[j]+=allocated[i][j];
+                //if the need of the process is less than or equal to current availibility,it will get those resources get completed and release all of its resources which will add in the current availibility
+                        safesequence[count++]=i+1;//the process completed will be added in the safe sequence
+                        finish[i]=1;
+                        found=1;
+                }
+                }
+        }
+        if(!found)//it will be true when found is zero and found will be zero on exit only if the all the processes are not completed the control will only come out of while loop when all the processes are checked
+        {
+                printf("The system is not in a safe state");
+                 return;
+                }
+
+        else
+        {
+        printf("The system is in a safe state and the safe sequence is:\n");
+        for(i=0;i<p;i++)
+        {
+                printf("process %d",safesequence[i]);
+        }
+        }
+}
+void resourcerequest(int p,int r,int available[],int max[][r],int allocated[][r],int request[],int pid)
+{
+        for(int i=0;i<r;i++)
+        {
+                if(request[i]>available[i])
+                {
+                        printf("Process must wait due to insufficient resources");
+                        return;
+                }
+        }
+        for(int i=0;i<r;i++)
+        {
+                if(request[i]>max[pid][i]-allocated[pid][i])
+                {
+                        printf("process must wait due to exceeding maximum claim");
+                }
+        }
+for(int i=0;i<r;i++)
+{
+        available[i]-=request[i];
+        allocated[pid][i]+=request[i];
+
+}
+issafe(p,r,available,max,allocated);
+}
+
+
+int main()
+{
+        int p,r,i,j;
+        printf("Enter the number of processes");
+        scanf("%d",&p);
+        printf("Enter the number of resources");
+        scanf("%d",&r);
+        int available[r];//to keep the number of resources available at the beginning
+        int max[p][r];//to keep the max number of resources required by thr process to complete
+        int allocated[p][r];//to keep the number of resources already allocated to the processes
+        printf("Enter the resources currently available");
+        for(i=0;i<r;i++)
+        {
+                scanf("%d",&available[i]);
+        }
+        printf("Enter the number of resources currently allocated to the processes");
+         for(i=0;i<p;i++)
+        {
+                printf("Process %d ->\n",(i+1));
+                for(j=0;j<r;j++)
+                {
+                        scanf("%d",&allocated[i][j]);
+                }
+        }
+        printf("Enter the maximum number of resources needed by the processes");
+        for(i=0;i<p;i++)
+        {
+                printf("process %d ->\n",(i+1));
+                for(j=0;j<r;j++)
+                {
+                        scanf("%d",&max[i][j]);
+                }
+        }
+        issafe(p,r,available,max,allocated);
+        int pid;
+        int request[r];
+        printf("Enter the source pid making request");
+        scanf("%d",&pid);
+        printf("Enter the request for process %d",pid);
+        for(i=0;i<r;i++)
+        {
+          scanf("%d",&request[r]);
+        }
+        resourcerequest(p,r,available,max,allocated,request,pid);
+}
+
+                           
