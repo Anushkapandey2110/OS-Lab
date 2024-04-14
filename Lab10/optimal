@@ -1,0 +1,107 @@
+#include<stdio.h>
+#include<stdlib.h>
+void optimal(int npage,int nframe,int *fq,int *pstr)
+{
+        int flag1=0;//will be one when page already present in the frame queue
+        int flag2=0;
+        int flag3=0;
+        int i,j,k,pos;//pos will store the position at which page has to be put in frame queue
+        int max;//max will store the page that occurs most later in the future in the remaining page string and is present in the current fq
+        int fault=0;//to store the number of faults
+        int *temp=(int *)malloc(sizeof(int)*nframe);//temp. frame queue to store the position of those pages after the current page ,if present in the fq
+        printf("page\t\tframes\n");
+        for(i=0;i<npage;i++)
+        {
+        flag1=flag2=0;//will be 0 for each page initially
+        for(j=0;j<nframe;j++)
+        {
+        if(fq[j]==pstr[i])
+        {
+        flag1=flag2=1;
+        break;
+        }
+        }
+if (flag1==0)
+{
+for(j=0;j<nframe;j++)
+{
+        if(fq[j]==-1)
+        {
+                fq[j]=pstr[i];
+                flag2=1;
+                fault++;
+                break;
+        }
+}
+}
+if (flag2==0)//the frame queue is full and the page has not been alloted a frame
+{
+        flag3=0;
+        for(j=0;j<nframe;j++)
+        {
+                temp[j]=-1;
+
+        for(k=i+1;k<npage;k++)
+        {
+                if(fq[j]==pstr[k])
+                {
+                        temp[j]=k;
+                        break;
+                }
+        }
+        }
+        for(j=0;j<nframe;j++)
+        {
+                if(temp[j]==-1)
+                                                 {
+                        pos=j;//storing the empty position of temp i.e at this and after this no future pages matched with the frame queue
+                        flag3=1;
+                        break;
+                }
+        }
+if(flag3==0)//when the temp queue was also completely filled
+{
+max=temp[0];//max stores the farthest position of the future page present in current fq that is which is required the most later
+pos=0;
+for(j=1;j<nframe;j++)
+{
+        if(temp[j]>max)
+        {
+                max=temp[j];
+                pos=j;
+        }
+}
+}
+fq[pos]=pstr[i];
+fault++;
+}
+printf("\n");
+printf("%d\t\t",pstr[i]);
+for(j=0;j<nframe;j++)
+{
+        printf("%d\t",fq[j]);
+}
+printf("\n");
+}
+printf("total page faults:%d\n",fault);
+printf("hit ratio %d/%d",(npage-fault),npage);
+}
+
+int main()
+{
+        int nframe,i,j,npage;
+        printf("Enter the number of frames");
+        scanf("%d",&nframe);
+        printf("Enter the number of pages");
+        scanf("%d",&npage);
+        int *fq=(int *)malloc(sizeof(int)*nframe);//queue to store frames
+        int *pstr=(int *)malloc(sizeof(int)*npage);//to store the page string
+        printf("Enter the page string:\n");
+        for(i=0;i<npage;i++)
+                scanf("%d",&pstr[i]);
+        for(i=0;i<nframe;i++)
+                fq[i]=-1;//initially the frames hold no pages
+        optimal(npage,nframe,fq,pstr);
+}
+
+                                                  
