@@ -1,0 +1,50 @@
+#include<stdio.h>
+#include<stdlib.h>
+void fifo(int npage,int nframe,int *fq,int *pstr)
+{
+        int i,j,flag=0;//flag will be one if the page in the page string already present
+        int fault=0;//to store the number of faults
+        int a=0;//to keep track of the position in frame queue,it will increment in circular fashion
+        printf("Page\t\tFrames\n");
+        for(i=0;i<npage;i++)
+        {
+                flag=0;
+                printf("%d\t\t",pstr[i]);
+                        for(j=0;j<nframe;j++)
+                        {
+                                if(fq[j]==pstr[i])
+                                        flag=1;
+                        }
+                if(flag==0)
+                {
+                        fq[a]=pstr[i];
+                        a=(a+1)%nframe;
+                        fault++;
+
+                for(j=0;j<nframe;j++)
+                        printf("%d\t",fq[j]);
+                }
+
+        printf("\n");
+        }
+        printf("The number of faults is  %d\n",fault);
+        printf("Hit ratio:%d/%d",(npage-fault),npage);
+
+}
+
+int main()
+{
+        int nframe,i,j,npage;
+        printf("Enter the number of frames");
+        scanf("%d",&nframe);
+        printf("Enter the number of pages");
+        scanf("%d",&npage);
+        int *fq=(int *)malloc(sizeof(int)*nframe);//queue to store frames
+        int *pstr=(int *)malloc(sizeof(int)*npage);//to store the page string
+        printf("Enter the page string:\n");
+        for(i=0;i<npage;i++)
+                scanf("%d",&pstr[i]);
+        for(i=0;i<nframe;i++)
+                fq[i]=-1;//initially the frames hold no pages
+        fifo(npage,nframe,fq,pstr);
+}
